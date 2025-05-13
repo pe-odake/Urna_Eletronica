@@ -85,19 +85,13 @@ from tkinter import messagebox
 votacao_ativa = False
 
 candidatos = {
-    'Python Silva': {'partido': 'Partido do Código Aberto (PCA)', 'numero': 11},
-    'CSS Cardoso': {'partido': 'Desenvolvedores Ágeis (DA)', 'numero': 22},
-    # 'SQL Ferreira': {'partido': 'Orientados a Objetos (POO)', 'numero': 33},
-    # 'HTML Santos': {'partido': 'Marcação para Todos (MT)', 'numero': 44},
-    # 'JavaScript Oliveira': {'partido': 'Assíncronos Independentes (AI)', 'numero': 55}
+    'Python Silva': {'partido': 'Partido do Código Aberto (PCA)', 'numero': 11, 'voto': 0},
+    'CSS Cardoso': {'partido': 'Desenvolvedores Ágeis (DA)', 'numero': 22, 'voto': 0},
+    # 'SQL Ferreira': {'partido': 'Orientados a Objetos (POO)', 'numero': 33, 'voto': 0},
+    # 'HTML Santos': {'partido': 'Marcação para Todos (MT)', 'numero': 44, 'voto': 0},
+    # 'JavaScript Oliveira': {'partido': 'Assíncronos Independentes (AI)', 'numero': 55, 'voto': 0}
 }
-votos = {
-    'Python Silva': 0,
-    'CSS Cardoso': 0,
-    # 'SQL Ferreira': 0,
-    # 'HTML Santos': 0,
-    # 'JavaScript Oliveira': 0
-}
+votos = []
 
 janela = tk.Tk()
 janela.title("Dizer Olá")
@@ -120,6 +114,9 @@ def add_candidato():
     janela_add_candidato = tk.Toplevel(janela)
     janela_add_candidato.title("Cadastro de Candidato")
     janela_add_candidato.geometry("1200x600")
+    # BOTÃO DE VOLTAR
+    btn_voltar = tk.Button(janela_add_candidato, text="voltar", command=janela_add_candidato.destroy)
+    btn_voltar.pack(pady=10)
     # NOME CANDIDATO
     tk.Label(janela_add_candidato, text="Nome do Candidato: ").pack(pady=5)
     entrada_nome = tk.Entry(janela_add_candidato)
@@ -136,11 +133,10 @@ def add_candidato():
         num = entrada_numero.get()
         nome = entrada_nome.get()
         partido = entrada_partido.get()
-        candidatos.append({nome: {'partido': partido, 'numero': num}})
+        candidatos.update({nome: {'partido': partido, 'numero': num, 'voto': 0}})
         print(candidatos)
     btn_add_candidato = tk.Button(janela_add_candidato, text="Salvar", command=confirmar_add_candidato)
     btn_add_candidato.pack(pady=5)
-        
 
 def votar():
     janela_votacao = tk.Toplevel(janela)
@@ -152,6 +148,19 @@ def votar():
     tk.Label(janela_votacao, text="Digite o número do candidato:").pack(pady=5)
     entrada_voto = tk.Entry(janela_votacao)
     entrada_voto.pack(pady=5)
+    def confirmar_voto():
+        matricula = entrada_matricula.get()
+        voto = entrada_voto.get()
+        if matricula:
+            v = ((c for c in candidatos if c["numero"] == voto), None)
+            confirma = messagebox.askyesno("Confirmação", f"Confirmar voto para{v['nome']} ({v['partido']})?")
+        if confirma:
+            print(candidatos)
+            
+        
+        
+    btn_votar = tk.Button(janela_votacao, text='Confirmar Voto', command=confirmar_voto)
+    btn_votar.pack(pady=30)
     
             
 
