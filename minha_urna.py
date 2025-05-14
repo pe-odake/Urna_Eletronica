@@ -130,7 +130,7 @@ def add_candidato():
     entrada_partido = tk.Entry(janela_add_candidato)
     entrada_partido.pack(pady=5)
     def confirmar_add_candidato():
-        num = entrada_numero.get()
+        num = int(entrada_numero.get())
         nome = entrada_nome.get()
         partido = entrada_partido.get()
         candidatos.update({nome: {'partido': partido, 'numero': num, 'voto': 0}})
@@ -150,12 +150,15 @@ def votar():
     entrada_voto.pack(pady=5)
     def confirmar_voto():
         matricula = entrada_matricula.get()
-        voto = entrada_voto.get()
+        voto = int(entrada_voto.get())
         if matricula:
-            v = ((c for c in candidatos if c["numero"] == voto), None)
-            confirma = messagebox.askyesno("Confirmação", f"Confirmar voto para{v['nome']} ({v['partido']})?")
-        if confirma:
-            print(candidatos)
+            for nome, dados in candidatos.items():
+                if dados['numero'] == voto:
+                    confirmacao = messagebox.askyesno('Confirmação', f'Você portador da matricula: {matricula}, confirma seu voto em {nome}, {dados['numero']}, {dados['partido']}')
+                
+
+        # if confirma:
+        #     print(candidatos)
             
         
         
