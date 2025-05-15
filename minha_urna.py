@@ -13,7 +13,7 @@ candidatos = {
     'Python Silva': {'partido': 'Partido do Código Aberto (PCA)', 'numero': 11, 'voto': 0},
     'CSS Cardoso': {'partido': 'Desenvolvedores Ágeis (DA)', 'numero': 22, 'voto': 0},
     'SQL Ferreira': {'partido': 'Orientados a Objetos (POO)', 'numero': 33, 'voto': 0},
-    'HTML Santos': {'partido': 'Marcação para Todos (MT)', 'numero': 44, 'voto': 4},
+    'HTML Santos': {'partido': 'Marcação para Todos (MT)', 'numero': 44, 'voto': 0},
     'JavaScript Oliveira': {'partido': 'Assíncronos Independentes (AI)', 'numero': 55, 'voto': 0}
 }
 
@@ -62,21 +62,28 @@ estilo_botao_encerrar = {
 estilo_label = {
     "bg": COR_FUNDO,
     "fg": "black",
-    "font": ("Arial", 18),
+    "font": ("Helvetica", 18),
+    "width": 50
+}
+candidatos_label = {
+    "bg": COR_FUNDO,
+    "fg": "black",
+    "font": ("Helvetica", 8),
     "width": 50
 }
 estilo_entry = {
     "bg": COR_FUNDO,
     "fg": "black",
-    "font": ("Arial", 12),
+    "font": ("Helvetica", 12),
     "width": 36
 }
 
 
 # FUNÇÕES E CODIGO
 
+
 def menu():
-    janela.geometry("580x360") 
+    janela.geometry("580x500") 
     janela.configure(padx=20, pady=20, bg=COR_FUNDO)
     
     label_menu = tk.Label(janela, text="Escolha uma opção:", **estilo_label)
@@ -90,6 +97,17 @@ def menu():
     
     botao_encerrar = tk.Button(janela, text="Encerrar Votação", command=imprimir_relatorio, **estilo_botao_menu)
     botao_encerrar.pack(pady=5)
+    
+    label_candidatos_menu = tk.Label(janela, text="Candidatos:", **estilo_label)
+    label_candidatos_menu.pack(pady=10) # Espaçamento entre o rótulo e os botões
+    
+    for nome in candidatos:
+        texto = f'{nome} - {candidatos[nome]['numero']} - {candidatos[nome]['partido']}'
+        candidato_label = tk.Label(janela, text=texto, **candidatos_label)
+        candidato_label.pack(pady=5)
+        
+
+    
 
 def add_candidato():
     janela_add_candidato = tk.Toplevel(janela)
@@ -114,6 +132,7 @@ def add_candidato():
         partido = entrada_partido.get()
         candidatos.update({nome: {'partido': partido, 'numero': num, 'voto': 0}})
         aviso = messagebox.showinfo('Candidato Adicionado', f'Candidato {nome} de número {num}, do partido {partido}, foi adicionado com sucesso')
+        janela_add_candidato.destroy()
 
 
     btn_add_candidato = tk.Button(janela_add_candidato, text="Salvar", command=confirmar_add_candidato, **estilo_botao_add)
@@ -144,6 +163,7 @@ def votar():
                     dados['voto'] += 1
                     if confirmacao: 
                         voto_feito = messagebox.showinfo('Confirmação', 'Voto feito')
+                        janela_votacao.destroy()
                     candidato_encontrado = True
                     break
         if not candidato_encontrado:
@@ -157,8 +177,6 @@ def votar():
     
 def imprimir_relatorio():
 
-    relatorio_da_eleicao = "relatorio_da_eleicao.pdf"
-
     janela_relatorio = tk.Toplevel(janela)
     janela_relatorio.title("Votação")
     janela_relatorio.geometry("580x360")
@@ -171,16 +189,38 @@ def imprimir_relatorio():
     # FUNÇÕES DE PDF
     def baixar_relatorio():
         relatorio_da_eleicao = "relatorio_da_eleicao.pdf"
+        imagem = 'senai.png'
         c = canvas.Canvas(relatorio_da_eleicao, pagesize=A4)
         largura, altura = A4
 
-        # TITULO
-        c.setFont("Helvetica-Bold", 20)
-        c.drawCentredString(largura / 2, altura - 80, "Relatório Final da Eleição")
+        # # TITULO
+        # c.setFont("Helvetica-Bold", 18)
+        # c.drawCentredString(largura / 2, altura - 80, "SENAI MORVAN FIGUEIREDO")
+        # c.drawImage(imagem, largura / 2, altura - 80, width=137, height=35)
+        # TÍTULO E IMAGEM ALINHADOS NO TOPO
+        titulo = "MORVAN FIGUEIREDO"
+        c.setFont("Helvetica-Bold", 18)
+
+        # Posição vertical
+        y_pos = altura - 80
+
+        # Largura do título em pontos
+        titulo_largura = c.stringWidth(titulo, "Helvetica-Bold", 18)
+
+        # Dimensões da imagem
+        img_largura = 137
+        img_altura = 35
+        espaco = 15
+        total_largura = img_largura + espaco + titulo_largura
+        inicio_x = (largura - total_largura) / 2
+        c.drawString(inicio_x + img_largura + espaco, y_pos + 7, titulo)
+        c.drawImage(imagem, inicio_x, y_pos - img_altura +32, width=img_largura, height=img_altura)
+        
         # LINHA 
         c.setStrokeColor(colors.grey)
         c.setLineWidth(1)
         c.line(50, altura - 90, largura - 50, altura - 90)
+        
         # INFOS VOTOS
         c.setFont("Helvetica", 14)
         c.drawString(100, altura - 140, f"Vencedor: {eleito}")
@@ -194,6 +234,7 @@ def imprimir_relatorio():
 
         c.save()
         messagebox.showinfo("Sucesso", f"PDF salvo em:\n{os.path.abspath(relatorio_da_eleicao)}")
+        janela_relatorio.destroy()
         
     # ACABOU
 
