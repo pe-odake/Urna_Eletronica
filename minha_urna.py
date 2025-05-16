@@ -68,7 +68,7 @@ estilo_label = {
 candidatos_label = {
     "bg": COR_FUNDO,
     "fg": "black",
-    "font": ("Helvetica", 8),
+    "font": ("Helvetica", 13),
     "width": 50
 }
 estilo_entry = {
@@ -98,16 +98,48 @@ def menu():
     botao_encerrar = tk.Button(janela, text="Encerrar Votação", command=imprimir_relatorio, **estilo_botao_menu)
     botao_encerrar.pack(pady=5)
     
+    global frame_canvas, lista_candidatos_frame
+
     label_candidatos_menu = tk.Label(janela, text="Candidatos:", **estilo_label)
-    label_candidatos_menu.pack(pady=10) # Espaçamento entre o rótulo e os botões
+    label_candidatos_menu.pack(pady=10)
+
+    frame_canvas = tk.Frame(janela)
+    frame_canvas.pack(fill="both", expand=True)
+
+    canvas_candidatos = tk.Canvas(frame_canvas, bg=COR_FUNDO, highlightthickness=0)
+    scrollbar = tk.Scrollbar(frame_canvas, orient="vertical", command=canvas_candidatos.yview)
+    canvas_candidatos.configure(yscrollcommand=scrollbar.set)
+
+    scrollbar.pack(side="right", fill="y")
+    canvas_candidatos.pack(side="left", fill="both", expand=True)
+
+    lista_candidatos_frame = tk.Frame(canvas_candidatos, bg=COR_FUNDO)
+    canvas_candidatos.create_window((0, 0), window=lista_candidatos_frame, anchor="nw")
+    canvas_candidatos.bind_all("<MouseWheel>", lambda event: canvas_candidatos.yview_scroll(int(-1*(event.delta/120)), "units"))
+
+    def on_configure(event):
+        canvas_candidatos.configure(scrollregion=canvas_candidatos.bbox("all"))
+
+    lista_candidatos_frame.bind("<Configure>", on_configure)
+
+    atualizar_lista_candidatos()
+
+        
+def atualizar_lista_candidatos():
+    global lista_candidatos_frame
+    for widget in lista_candidatos_frame.winfo_children():
+        widget.destroy()
     
     for nome in candidatos:
-        texto = f'{nome} - {candidatos[nome]['numero']} - {candidatos[nome]['partido']}'
-        candidato_label = tk.Label(janela, text=texto, **candidatos_label)
-        candidato_label.pack(pady=5)
-        
+        texto = f'{nome} - {candidatos[nome]["numero"]} - {candidatos[nome]["partido"]}'
+        candidato_label = tk.Label(
+            lista_candidatos_frame,
+            text=texto,
+            **candidatos_label,
+            justify="center"
+        )
+        candidato_label.pack(pady=5, anchor="center")
 
-    
 
 def add_candidato():
     janela_add_candidato = tk.Toplevel(janela)
@@ -133,6 +165,8 @@ def add_candidato():
         candidatos.update({nome: {'partido': partido, 'numero': num, 'voto': 0}})
         aviso = messagebox.showinfo('Candidato Adicionado', f'Candidato {nome} de número {num}, do partido {partido}, foi adicionado com sucesso')
         janela_add_candidato.destroy()
+        atualizar_lista_candidatos()
+
 
 
     btn_add_candidato = tk.Button(janela_add_candidato, text="Salvar", command=confirmar_add_candidato, **estilo_botao_add)
